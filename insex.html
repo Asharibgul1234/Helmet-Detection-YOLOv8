@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helmet Detection | YOLOv8</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: #0d1117;
+        color: white;
+    }
+
+    header {
+        background: #161b22;
+        padding: 20px;
+        text-align: center;
+        font-size: 27px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        color: #58a6ff;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 950px;
+        margin: 20px auto;
+    }
+
+    .card {
+        background: #161b22;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #30363d;
+        position: relative;
+    }
+
+    h2 {
+        color: #58a6ff;
+    }
+
+    button {
+        background: #238636;
+        border: none;
+        padding: 12px 20px;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #2ea043;
+    }
+
+    input[type="file"] {
+        margin-top: 15px;
+    }
+
+    img, video {
+        width: 100%;
+        display: none;
+        margin-top: 15px;
+        border-radius: 10px;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 22px;
+        color: red;
+        font-weight: bold;
+    }
+
+    #liveFeed {
+        height: 480px;
+        border-radius: 12px;
+        border: 2px solid #30363d;
+    }
+
+    .developer-box {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .developer-info a {
+        color: #58a6ff;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .developer-info a:hover {
+        text-decoration: underline;
+    }
+</style>
+</head>
+
+<body>
+
+<header>Helmet Detection System – YOLOv8</header>
+
+<div class="container">
+
+    <!-- INTRODUCTION SECTION -->
+    <div class="card">
+        <h2>🚀 About This Project</h2>
+        <p>
+            The Helmet Detection System was created to solve a major global issue:
+            <strong>road safety</strong>. Thousands of accidents happen every year because riders do not
+            wear helmets. Manual monitoring is slow and requires large manpower.
+        </p>
+        <p>
+            This AI-powered system uses <strong>YOLOv8</strong> to automatically detect helmet usage in
+            images, videos, and live camera streams. It helps traffic departments, law enforcement,
+            and safety organizations automate monitoring with high accuracy.
+        </p>
+    </div>
+
+    <!-- OBJECTIVE -->
+    <div class="card">
+        <h2>🎯 Objective</h2>
+        <p>The main goal of this system is to improve road safety through the power of Artificial Intelligence by:</p>
+        <ul>
+            <li>Detecting helmet violations instantly</li>
+            <li>Reducing manual monitoring work</li>
+            <li>Providing intelligent, real-time detection</li>
+            <li>Offering offline (image/video) and live detection</li>
+        </ul>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="card">
+        <h2>⭐ Features</h2>
+        <ul>
+            <li><strong>Image Detection:</strong> Upload any photo and detect helmets instantly.</li>
+            <li><strong>Video Detection:</strong> Upload a video and get a fully processed output.</li>
+            <li><strong>Live Camera Detection:</strong> Real-time detection using your webcam/CCTV feed.</li>
+            <li><strong>Fast & Accurate:</strong> Powered by YOLOv8 + Flask + OpenCV.</li>
+            <li><strong>Delete All Files:</strong> Clears uploaded/processed data with one click.</li>
+        </ul>
+    </div>
+
+    <!-- DEVELOPER SECTION -->
+    <div class="card">
+        <h2>👨‍💻 Developer</h2>
+        <div class="developer-box">
+            <div class="developer-info">
+                <p><strong>Name:</strong> Asharib Gul</p>
+                <p><strong>Role:</strong> AI Engineer, Computer Vision Specialist</p>
+                <p>
+                    <strong>LinkedIn:</strong>
+                    <a href="https://linkedin.com/in/asharib-gull-612653314" target="_blank">
+                        linkedin.com/in/asharib-gull-612653314
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMAGE DETECTION -->
+    <div class="card" id="imageCard">
+        <h2>🖼 Image Detection</h2>
+        <span class="close-btn" onclick="closeImage()">×</span>
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="uploadImage()">Process Image</button>
+        <img id="imageResult">
+    </div>
+
+    <!-- VIDEO DETECTION -->
+    <div class="card" id="videoCard">
+        <h2>🎥 Video Detection</h2>
+        <span class="close-btn" onclick="closeVideo()">×</span>
+        <input type="file" id="videoInput" accept="video/*">
+        <button onclick="uploadVideo()">Process Video</button>
+        <p id="videoMsg"></p>
+    </div>
+
+    <!-- LIVE CAMERA -->
+    <div class="card" id="liveCard">
+        <h2>📡 Live Camera Detection</h2>
+        <span class="close-btn" onclick="closeLive()">×</span>
+        <button onclick="startLive()">Start Live</button>
+        <button onclick="stopLive()">Stop Live</button>
+        <img id="liveFeed" src="">
+    </div>
+
+    <!-- DELETE ALL -->
+    <div class="card">
+        <h2>🗑 File Maintenance</h2>
+        <button style="background:#da3633;" onclick="deleteAll()">Delete All Files</button>
+    </div>
+
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:5000";
+
+    // ----- IMAGE DETECTION -----
+    async function uploadImage() {
+        let file = document.getElementById("imageInput").files[0];
+        if (!file) return alert("Select an image first!");
+
+        let formData = new FormData();
+        formData.append("file", file);
+
+        let response = await fetch(BASE_URL + "/upload_image", { method: "POST", body: formData });
+        let blob = await response.blob();
+        let url = URL.createObjectURL(blob);
+
+        let img = document.getElementById("imageResult");
+        img.src = url;
+        img.style.display = "block";
+    }
+
+    function closeImage() {
+        let img = document.getElementById("imageResult");
+        img.src = "";
+        img.style.display = "none";
+    }
+
+    // ----- VIDEO DETECTION -----
+    async function uploadVideo() {
+        let file = document.getElementById("videoInput").files[0];
+        if (!file) return alert("Select a video first!");
+
+        let formData = new FormData();
+        formData.append("file", file);
+
+        let response = await fetch(BASE_URL + "/upload_video", { method: "POST", body: formData });
+        if (response.ok) {
+            let blob = await response.blob();
+            let url = URL.createObjectURL(blob);
+
+            let msg = document.getElementById("videoMsg");
+            msg.innerHTML = `<a href="${url}" download="processed_video.mp4">⬇ Download Processed Video</a>`;
+            msg.style.display = "block";
+        }
+    }
+
+    function closeVideo() {
+        let msg = document.getElementById("videoMsg");
+        msg.innerHTML = "";
+        msg.style.display = "none";
+    }
+
+    // ----- LIVE CAMERA -----
+    function startLive() {
+        fetch(BASE_URL + "/start_live", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ device: 0 })
+        });
+        let live = document.getElementById("liveFeed");
+        live.src = BASE_URL + "/video_feed";
+        live.style.display = "block";
+    }
+
+    function stopLive() {
+        fetch(BASE_URL + "/stop_live", { method: "POST" });
+        let live = document.getElementById("liveFeed");
+        live.src = "";
+    }
+
+    function closeLive() {
+        stopLive();
+        let live = document.getElementById("liveFeed");
+        live.src = "";
+        live.style.display = "none";
+    }
+
+    // ----- DELETE ALL -----
+    async function deleteAll() {
+        try {
+            let response = await fetch(BASE_URL + "/delete_all", { method: "POST" });
+            let data = await response.json();
+            if (response.ok && data.status === "deleted") {
+                alert("✅ All uploaded and processed files have been deleted!");
+            }
+        } catch (err) {
+            alert("⚠ Error deleting files!");
+            console.error(err);
+        }
+    }
+</script>
+
+</body>
+</html>

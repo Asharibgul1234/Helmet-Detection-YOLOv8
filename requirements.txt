@@ -1,0 +1,23 @@
+# 1. YOLOv8 framework for training, validation, and inference
+ultralytics
+
+# 2. Image processing and reading images from dataset
+opencv-python
+
+# 3. Numerical operations (arrays, tensors, math)
+numpy
+
+# 4. Visualizing training graphs and prediction results
+matplotlib
+
+# 5. Evaluation metrics (precision, recall, train/val split support)
+scikit-learn
+
+# 6. Loading and saving images, handling image formats
+pillow
+
+# 7. For reading/writing data.yaml and configuration files
+pyyaml
+
+# 8. Progress bars for dataset processing and training visualization
+tqdm
