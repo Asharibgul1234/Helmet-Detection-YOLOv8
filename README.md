@@ -74,8 +74,9 @@ Google Colab
 ⚙️ Installation
 
 Clone the repository:
+git clone https://github.com/Asharibgul1234/Helmet-Detection-YOLOv8.git
 
-git clone https://github.com/yourusername/Helmet-Detection-YOLOv8.git
+
 cd Helmet-Detection-YOLOv8
 
 
@@ -132,3 +133,4 @@ Convert to ONNX/TFLite
 
 Pull requests are welcome.
 If you find any bugs or want new features, feel free to open an issue.
+
